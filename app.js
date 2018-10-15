@@ -59,4 +59,56 @@ app.delete('/pippo', function(req, res) {
     res.json(x);
 })
 
+function getRandomChoice(){
+    var random = Math.random();
+    if (random < 0.33) {
+        return 'scissor';
+    } else if (random < 0.66) {
+        return 'paper';
+    } else {
+        return 'rock';
+    }
+}
+var history = {
+    draw: 0,
+    win: 0,
+    lose: 0
+} 
+
+app.get('/games/paperScissorRock', function(req, res) {
+    if (req.query.myChoice === 'paper' || 
+        req.query.myChoice === 'scissor' ||
+        req.query.myChoice === 'rock'
+    ) {
+        var computerChoice = getRandomChoice();
+        if (computerChoice === req.query.myChoice){
+            history.draw++;
+            res.json({
+                result: 'draw',
+                computerChoice: computerChoice,
+                history: history
+            })
+        } else if (
+            (req.query.myChoice === 'rock' && computerChoice === 'scissor') ||
+            (req.query.myChoice === 'paper' && computerChoice === 'rock') ||
+            (req.query.myChoice === 'scissor' && computerChoice === 'paper') ){
+                history.win++;
+                res.json({
+                    result: 'win',
+                    computerChoice: computerChoice,
+                    history: history
+                })
+        } else {
+            history.lose++;
+            res.json({
+                result: 'lose',
+                computerChoice: computerChoice,
+                history: history
+            })
+        }
+    } else {
+        res.status(400).json({message: 'wrong value of myChoice'})
+    }
+})
+
 app.listen(3001);
